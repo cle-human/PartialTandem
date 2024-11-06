@@ -1,0 +1,11 @@
+name: PartialTandem
+title: PartialTandem
+username:
+account: hoffmanncl
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8564659
+bundleId: 9226926
+url: https://hoffmanncl.shinyapps.io/PartialTandem/
+asMultiple: FALSE
+asStatic: FALSE
