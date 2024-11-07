@@ -110,8 +110,8 @@ a5t1;Here is a list of all national parties, their European affiliation and rece
 a5t2;The European Green Party has formed a list coalition with EFA, VOLT, DiEM25 and EUPP. With the following button you can let each partner run on their own.;Die Europäische Grüne Partei hat eine Listenverbindung zusammen mit EFA, VOLT, DiEM25 und PPEU gebildet. Mit der folgenden Auswahl kann entschieden werden, ob diese europäischen Partei zusammen oder getrennt antreten.;Le Parti Vert Européen a formé une liste commune avec ALE, VOLT, DiEM25 et PPEU. Le choix suivant permet de décider si ces partis européens se présentent ensemble ou séparément.;;
 a5s1;Let them run together;Sie treten zusammen an;Ils se présentent ensemble;;
 a5s2;Let them run seperately;Sie treten getrennt an;Ils se présentent séparément;;
-com1;Show _MENU_ entries;Zeige _MENU_ Einträge;Afficher les entrées du _MENU;;
-com2;From _START_ to _END_ of _TOTAL_ entries;_START_ bis _END_ von _TOTAL_ Einträgen;_START_ à _END_ de _TOTAL_ entrées.;;
+com1;Show _MENU_ entries;Zeige _MENU_ Einträge;Afficher _MENU_ entrées;;
+com2;From _START_ to _END_ of _TOTAL_ entries;_START_ bis _END_ von _TOTAL_ Einträgen;De _START_ à _END_ de _TOTAL_ entrées.;;
 com3;Search;Suche;Recherche;;
 com4;Previous;Vorherige;Précédent;;
 com5;Next;Folgende;Suivant;;
