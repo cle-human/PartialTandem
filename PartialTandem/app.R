@@ -239,13 +239,6 @@ server <- function(input, output,session=session) {
   observeEvent(input$quorum_type,{
     saved2(input$GC)
   })
-
-  
-  
-
-  
-  # tandem_participation<-reactive({row.names(as.data.frame(tandem_participation()))<-isolate(country_full_names())
-  # tandem_participation})
   
   #define data.frame inputs
   output$tandem_participation <- renderDT({
