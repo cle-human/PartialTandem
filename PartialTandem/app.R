@@ -31,18 +31,10 @@ coalition_colors<-c("seagreen","red4","red3","lawngreen","red","orangered","fore
 
 
 #############
-ui <- fluidPage(
+ui <- navbarPage("",
   theme = bs_theme(bootswatch = "flatly"),#base_font = font_collection(font_scale = .5)), #bs_theme(base_font = font_collection("system-ui", "-apple-system", "Segoe UI", font_google("Roboto"), "Helvetica Neue",  font_google("Noto Sans"), "Liberation Sans", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", font_google("Noto Color Emoji")), font_scale = 0.5),
   tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css")),
   
-  div(style = "float: right;",  
-    selectizeInput(
-      inputId = "lang",
-      label =  NULL,
-      choices = c("English" =2,"Deutsch"=3,"Français"=4)
-      )
-  ),
-  tabsetPanel(
     tabPanel(textOutput("main0"),
              # Application title
              titlePanel(textOutput("title0")),
@@ -170,8 +162,21 @@ ui <- fluidPage(
              p("Germany"),
              p("clemens_hoffmann[at]yahoo.de"),
              value = "tab3"
-             )
-  )
+             ),
+    nav_spacer(),
+    tabPanel(
+      selectizeInput(
+        inputId = "lang",
+        label =  NULL,
+        choices = c("English" =2,"Deutsch"=3,"Français"=4),
+        width = "110px"
+      ),
+      p("The page will update after selecting another language."),
+      value = "tab4"
+    ),
+    id="allsites",
+  footer = p()
+  
 )
 #############
 
@@ -190,6 +195,7 @@ server <- function(input, output,session=session) {
         localisation[i,as.numeric(input$lang)]
       })
     })
+    output$res1<-renderText({paste0(localisation[130,as.numeric(input$lang)],year(),collapse = " ")})
     updateSelectizeInput(session,"quorum_type",
                          choices = {choi<-list("EUT","NAT","ENT","NOT")
                          names(choi)<-c(localisation[88:91,as.numeric(input$lang)])
@@ -223,6 +229,8 @@ server <- function(input, output,session=session) {
       edited_data$alternative[i]<-party.names[rr,as.numeric(input$lang)-1]      
     }
     votes_list(edited_data)
+    #go to main page
+    updateNavbarPage(session,"allsites","tab1")
   })
   
   observeEvent(input$quorum_type,{
@@ -333,7 +341,7 @@ server <- function(input, output,session=session) {
     #get long name
     for (i in 1:nrow(results.tab)) {
       if (results.tab$European.list.coalition[i] %in% localisation[135,as.numeric(input$lang)]){
-        results.tab$European.list.coalition.long[i]<-localisation[which(results.tab$European.list.coalition[i]==localisation[,as.numeric(input$lang)]),as.numeric(input$lang)]
+        results.tab$European.list.coalition.long[i]<-localisation[which(results.tab$European.list.coalition[i]==localisation[,as.numeric(input$lang)])+1,as.numeric(input$lang)]
       }else{
         results.tab$European.list.coalition.long[i]<-localisation[which(results.tab$European.list.coalition[i]==localisation[,as.numeric(input$lang)])-22,as.numeric(input$lang)] 
       }
@@ -379,20 +387,24 @@ server <- function(input, output,session=session) {
     results.tab$European.list.coalition<-factor(results.tab$European.list.coalition,levels = c(localisation[c(52:73),as.numeric(input$lang)],setdiff(results.tab$European.list.coalition,localisation[c(52:73),as.numeric(input$lang)])))
     results.tab$start<-cumsum(c(0, results.tab$nat.seats[-nrow(results.tab)]) / sum(results.tab$nat.seats))
     results.tab$end<-cumsum(results.tab$nat.seats / sum(results.tab$nat.seats))
+    results.tab$label_position<-(results.tab$start+results.tab$end)
     results.tab$color<-coalition_colors[match(results.tab$European.list.coalition,localisation[c(52:73),as.numeric(input$lang)])]
     results.tab$color[which(is.na(results.tab$color))]<-"grey"
-    
+
     ggplot(results.tab)+geom_arc_bar(aes(x0 = 0, y0 = 0, fill=European.list.coalition,
                                          r0 = .5, r = 1.5,
                                          start = start/1 * pi - 0.5 * pi,
                                          end = end / 1 * pi - 0.5 * pi))+
       scale_fill_manual(values = results.tab$color,
-                        name = localisation[131,as.numeric(input$lang)])+
+                        name = "")+#localisation[131,as.numeric(input$lang)])+
       theme(aspect.ratio = 0.5,
             axis.title = element_blank(),
             axis.text = element_blank(),
             axis.ticks = element_blank(),
-            panel.background = element_blank())
+            panel.background = element_blank(),
+            legend.position = "bottom",
+            legend.text = element_text(size = 12))+
+      guides(color=guide_legend(ncol = 1,byrow = TRUE))
   })
   
   #
