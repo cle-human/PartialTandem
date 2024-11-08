@@ -236,7 +236,7 @@ server <- function(input, output,session=session) {
   observeEvent(input$quorum_type,{
     saved(input$quorum_type)
   })
-  observeEvent(input$quorum_type,{
+  observeEvent(input$GC,{
     saved2(input$GC)
   })
   
