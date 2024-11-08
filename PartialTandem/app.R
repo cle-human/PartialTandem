@@ -7,6 +7,7 @@ library(bslib)
 library(proporz)
 library(ggplot2)
 library(ggforce)
+library(shinytitle)
 
 localisation <- read.csv("localisation.csv", header=TRUE, sep=";")
 
@@ -31,7 +32,8 @@ coalition_colors<-c("seagreen","red4","red3","lawngreen","red","orangered","fore
 
 
 #############
-ui <- navbarPage("",
+ui <- navbarPage("",use_shiny_title(),
+  windowTitle = textOutput("title0"),#localisation[75,as.numeric(input$lang)],
   theme = bs_theme(bootswatch = "flatly"),#base_font = font_collection(font_scale = .5)), #bs_theme(base_font = font_collection("system-ui", "-apple-system", "Segoe UI", font_google("Roboto"), "Helvetica Neue",  font_google("Noto Sans"), "Liberation Sans", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", font_google("Noto Color Emoji")), font_scale = 0.5),
   tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css")),
   
@@ -145,13 +147,16 @@ ui <- navbarPage("",
              h3(textOutput("ref2")),
              p(textOutput("ref3")), 
              h3(textOutput("ref4")),
-             p(class="hangingindent","R Core Team (2023). _R: A Language and Environment for Statistical Computing_. R Foundation for Statistical Computing, Vienna, Austria. <https://www.R-project.org/>."),
+             p(class="hangingindent","Baldry A (2021). _shinytitle: Update Browser Window Title in 'shiny' Session_. R package version 0.1.0, https://CRAN.R-project.org/package=shinytitle."),
              p(class="hangingindent","Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Xie Y, Allen J, McPherson J, Dipert A, Borges B (2022). _shiny: Web Application Framework for R_. R package version 1.7.4, <https://CRAN.R-project.org/package=shiny>"),
-             p(class="hangingindent","Sievert C, Cheng J, Aden-Buie G (2023). _bslib: Custom  'Bootstrap' 'Sass' Themes for 'shiny' and 'rmarkdown'_. R package version 0.5.0, <https://CRAN.R-project.org/package=bslib>"),
-             p(class="hangingindent","Xie Y, Cheng J, Tan X (2024). _DT: A Wrapper of the JavaScript Library 'DataTables'_. R package version 0.33, <https://CRAN.R-project.org/package=DT>"),
+             p(class="hangingindent","Pedersen T (2024). _ggforce: Accelerating 'ggplot2'_. R package version 0.4.2,  https://CRAN.R-project.org/package=ggforce"),
              p(class="hangingindent","Poletti F (2023). _proporz: Proportional Apportionment_. R package version 1.2."),
+             p(class="hangingindent","R Core Team (2023). _R: A Language and Environment for Statistical Computing_. R Foundation for Statistical Computing, Vienna, Austria. https://www.R-project.org/."),
+             p(class="hangingindent","Schloerke B, Chang W, Stagg G, Aden-Buie G (2024). _shinylive: Run 'shiny' Applications in the Browser_. R package version 0.2.0, https://CRAN.R-project.org/package=shinylive."),             
+
+             p(class="hangingindent","Sievert C, Cheng J, Aden-Buie G (2023). _bslib: Custom  'Bootstrap' 'Sass' Themes for 'shiny' and 'rmarkdown'_. R package version 0.5.0, https://CRAN.R-project.org/package=bslib"),
              p(class="hangingindent","H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016."),
-             p(class="hangingindent","Pedersen T (2024). _ggforce: Accelerating 'ggplot2'_. R package version 0.4.2,  <https://CRAN.R-project.org/package=ggforce>"),
+             p(class="hangingindent","Xie Y, Cheng J, Tan X (2024). _DT: A Wrapper of the JavaScript Library 'DataTables'_. R package version 0.33, https://CRAN.R-project.org/package=DT"),
              value = "tab2"
     ),
     tabPanel("Impressum",
@@ -231,6 +236,7 @@ server <- function(input, output,session=session) {
     votes_list(edited_data)
     #go to main page
     updateNavbarPage(session,"allsites","tab1")
+    change_window_title(session, localisation[75,as.numeric(input$lang)])
   })
   
   observeEvent(input$quorum_type,{
