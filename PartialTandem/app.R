@@ -164,7 +164,7 @@ ui <- navbarPage("",
              p("Platz der Göttinger Sieben 5"),
              p("37073 Göttingen"),
              p("Germany"),
-             p("clemens_hoffmann[at]yahoo.de"),
+             p("mail[at)choffmann.eu"),
              value = "tab3"
              ),
     nav_spacer(),
@@ -172,7 +172,7 @@ ui <- navbarPage("",
       selectizeInput(
         inputId = "lang",
         label =  NULL,
-        choices = c("English" =2,"Deutsch"=3,"Français"=4),
+        choices = c("English" =2,"Deutsch"=3,"Français"=4,"Italiano"=5),
         width = "110px"
       ),
       p("The page will update after selecting another language."),
