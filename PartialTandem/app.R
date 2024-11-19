@@ -27,7 +27,7 @@ tandem_participation_ini<-matrix(rep("yes",29),29,1)
 tandem_participation_ini[c(1,c(3,4,5,6,7,8,9,12,13,14,16,17,19,23,24,25,27)+2)]<-"no"
 tandem_participation_ini<-cbind(CC,tandem_participation_ini)
 colnames(tandem_participation_ini)<-c("CC","participation")
-tandem_participation_ini<-as.matrix(tandem_participation_ini)
+tandem_participation_ini<-as.data.frame(tandem_participation_ini)
 
 coalition_names<-c("FPP","INITIATIVE","LEFT","APEU","PES","DiEM25","GREEN","EGP","EFA","EUPP","VOLT","ALDE","RENEW","EDP","EPP","ECPM","ECR","PfE","ID","ESN","inds","none","tech")
 coalition_colors<-c("seagreen","red4","red3","lawngreen","red","orangered","forestgreen","green3","purple4","black","purple","gold","skyblue","orange","mediumblue","turquoise","midnightblue","peru","peru","saddlebrown","white","grey","grey")
@@ -425,7 +425,6 @@ server <- function(input, output,session=session) {
                    min_list_div = input$numdiv/100,
                    national_laws_matrix = laws_matrix(),
                    use_technical_list = input$use_technical_list,
-                   use_european_quorum = input$use_european_quorum,
                    language = as.numeric(input$lang)
     )
   })
@@ -433,9 +432,9 @@ server <- function(input, output,session=session) {
   output$results <- renderUI({
     #create
     votes_list<-as.data.frame(tandem_result())
-    results.tab<-aggregate(nat.seats~European.list.coalition,data = votes_list,FUN=sum)
-    results.tab<-results.tab[(which(results.tab$nat.seats!=0)),]
-    results.tab<-results.tab[order(results.tab$nat.seats, decreasing = TRUE),]
+    results.tab<-aggregate(tandem_seats~European.list.coalition,data = votes_list,FUN=sum)
+    results.tab<-results.tab[(which(results.tab$tandem_seats!=0)),]
+    results.tab<-results.tab[order(results.tab$tandem_seats, decreasing = TRUE),]
     results.tab$European.list.coalition.long<-NA
     #get long name
     lang<-as.numeric(input$lang)
@@ -449,24 +448,24 @@ server <- function(input, output,session=session) {
     }
     #create accordion panels
     panel_list <- lapply(1:nrow(results.tab), function(i){
-      rr<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$nat.seats>1)
+      rr<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats>1)
       #order by number of seats
-      rro<-rr[order(votes_list$nat.seats[rr],decreasing = TRUE)]
-      rr1<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$nat.seats==1)
+      rro<-rr[order(votes_list$tandem_seats[rr],decreasing = TRUE)]
+      rr1<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats==1)
       panel_content<- paste(
         paste(
-          sprintf("%s - %s - %d %s",votes_list$CC[rro],votes_list$national.party[rro],votes_list$nat.seats[rro],localisation$res3[lang]),
+          sprintf("%s - %s - %d %s",votes_list$CC[rro],votes_list$national.party[rro],votes_list$tandem_seats[rro],localisation$res3[lang]),
           collapse = "<br>"
         ),
         paste(
-          sprintf("%s - %s - %d %s",votes_list$CC[rr1],votes_list$national.party[rr1],votes_list$nat.seats[rr1],localisation$res4[lang]),
+          sprintf("%s - %s - %d %s",votes_list$CC[rr1],votes_list$national.party[rr1],votes_list$tandem_seats[rr1],localisation$res4[lang]),
           collapse = "<br>" 
         ),sep = "<br>"
       )
       
       accordion_panel(
-        title = paste(results.tab$European.list.coalition.long[i]," - ",results.tab$nat.seats[i],ifelse(results.tab$nat.seats[i]>1,localisation$res3[lang],localisation$res4[lang]) ),
-        #paste(votes_list$national.party[rr], " - ",votes_list$nat.seats[rr],"seats",collapse = " \n "),
+        title = paste(results.tab$European.list.coalition.long[i]," - ",results.tab$tandem_seats[i],ifelse(results.tab$tandem_seats[i]>1,localisation$res3[lang],localisation$res4[lang]) ),
+        #paste(votes_list$national.party[rr], " - ",votes_list$tandem_seats[rr],"seats",collapse = " \n "),
         HTML(panel_content),
         value= paste0("panel",i)
       )
@@ -479,8 +478,8 @@ server <- function(input, output,session=session) {
   output$Europlot<-renderPlot({
     #create data table
     votes_list<-as.data.frame(tandem_result())
-    results.tab<-aggregate(nat.seats~European.list.coalition,data = votes_list,FUN=sum)
-    results.tab<-results.tab[(which(results.tab$nat.seats!=0)),]
+    results.tab<-aggregate(tandem_seats~European.list.coalition,data = votes_list,FUN=sum)
+    results.tab<-results.tab[(which(results.tab$tandem_seats!=0)),]
     
     #reformat for correct order
     lang<-as.numeric(input$lang)
@@ -488,8 +487,8 @@ server <- function(input, output,session=session) {
     end<-which(colnames(localisation)==coalition_names[23])
     results.tab<-results.tab[na.omit(match(c(localisation[lang,c(begin:end)],setdiff(results.tab$European.list.coalition,localisation[lang,c(begin:end)])),results.tab$European.list.coalition)),]
     results.tab$European.list.coalition<-factor(results.tab$European.list.coalition,levels = c(localisation[lang,c(begin:end)],setdiff(results.tab$European.list.coalition,localisation[lang,c(begin:end)])))
-    results.tab$start<-cumsum(c(0, results.tab$nat.seats[-nrow(results.tab)]) / sum(results.tab$nat.seats))
-    results.tab$end<-cumsum(results.tab$nat.seats / sum(results.tab$nat.seats))
+    results.tab$start<-cumsum(c(0, results.tab$tandem_seats[-nrow(results.tab)]) / sum(results.tab$tandem_seats))
+    results.tab$end<-cumsum(results.tab$tandem_seats / sum(results.tab$tandem_seats))
     results.tab$color<-coalition_colors[match(results.tab$European.list.coalition,localisation[lang,c(begin:end)])]
     results.tab$color[which(is.na(results.tab$color))]<-"grey"
     
@@ -677,7 +676,7 @@ server <- function(input, output,session=session) {
   })
   
   ###### internal function
-  partial_tandem<-function(election.year,
+  partial_tandem<-function(election.year=2024,
                            votes_list,
                            threshold_type,
                            european_quorum,
@@ -688,8 +687,7 @@ server <- function(input, output,session=session) {
                            min_list_div,
                            national_laws_matrix,
                            use_technical_list,
-                           use_european_quorum,
-                           language=2){
+                           language=1){
     #remove coalitions
     if (!identical(which(votes_list[,2]%in%localisation$coal), integer(0))) {
       votes_list<-votes_list[-which(votes_list[,2]%in%localisation$coal),]
@@ -809,52 +807,44 @@ server <- function(input, output,session=session) {
     }
     
     #add seats column
-    votes_list<-cbind(votes_list,nat.seats=0)
+    votes_list<-cbind(votes_list,tandem_seats=0)
     
     #distribution of seats in non-tandem states
     for (i in tandem_participation$CC[which(tandem_participation$participation=="No")]) {
       #which rows belong to the state
-      rr<-which(votes_list$CC==i&votes_list$Nat.threshold)
-      #check if STV
-      if (national_laws_matrix$method[which(national_laws_matrix$CC==i)]=="STV") {
-        #check if 2019
-        if (election.year==2019) {##check names !!!!!!
-          if (i=="IE") {
-            votes_list$nat.seats[which(votes_list$national.party=="Fine Gael")]<-5
-            votes_list$nat.seats[which(votes_list$national.party=="Fianna Fáil")]<-2
-            votes_list$nat.seats[which(votes_list$national.party=="Sinn Féin")]<-1
-            votes_list$nat.seats[which(votes_list$national.party=="Green")]<-2
-            votes_list$nat.seats[which(votes_list$national.party=="Inds. 4 Change")]<-2
-            votes_list$nat.seats[which(votes_list$national.party=="Independents (IE)")]<-1 
-          }else if(i=="MT"){
-            votes_list$nat.seats[which(votes_list$national.party=="Partit Laburista (PL)")]<-4
-            votes_list$nat.seats[which(votes_list$national.party=="Partit Nazzjonalista (PN)")]<-2
-          }
-        }else{
-          if (i=="IE") {
-            votes_list$nat.seats[which(votes_list$national.party=="Fine Gael")]<-4
-            votes_list$nat.seats[which(votes_list$national.party=="Fianna Fáil")]<-4
-            votes_list$nat.seats[which(votes_list$national.party=="Sinn Féin")]<-2
-            votes_list$nat.seats[which(votes_list$national.party=="Independent Ireland")]<-1
-            votes_list$nat.seats[which(votes_list$national.party=="Labour")]<-1
-            votes_list$nat.seats[which(votes_list$national.party=="Independent (IE)")]<-2            
-          }else if(i=="MT"){
-            votes_list$nat.seats[which(votes_list$national.party=="Partit Laburista")]<-3
-            votes_list$nat.seats[which(votes_list$national.party=="Partit Nazzjonalista")]<-3            
-          }
-        }
-        ## member states with quota method
-      }else if (national_laws_matrix$method[which(national_laws_matrix$CC==i)]=="Quota"|national_laws_matrix$method[which(national_laws_matrix$CC==i)]=="Hare-Niemeyer") {
-        votes_list$nat.seats[rr]<-largest_remainder_method(votes=votes_list$votes[rr],
-                                                           national_laws_matrix$seats[which(national_laws_matrix$CC==i)],
-                                                           quorum = 0)
-        ##all other member states
+      rr<-which(votes_list$CC==i)#&votes_list$Nat.threshold)
+      #check whether number of seats has changed for a country
+      if (sum(votes_list$seats[rr])==national_laws_matrix$seats[which(national_laws_matrix$CC==i)]) {
+        #copy seats from real result
+        votes_list$tandem_seats[rr]<-votes_list$seats[rr]
       }else{
-        votes_list$nat.seats[rr]<-proporz::proporz(votes=votes_list$votes[rr],
-                                                   national_laws_matrix$seats[which(national_laws_matrix$CC==i)],
-                                                   method = national_laws_matrix$method[which(national_laws_matrix$CC==i)],
-                                                   quorum = 0)
+        #remove below threshold
+        rr<-which(votes_list$CC==i&votes_list$Nat.threshold)
+        #check if STV or Quota
+        if (national_laws_matrix$method[which(national_laws_matrix$CC==i)]=="Quota"|national_laws_matrix$method[which(national_laws_matrix$CC==i)]=="Hare-Niemeyer"|national_laws_matrix$method[which(national_laws_matrix$CC==i)]=="STV") {
+          votes_list$tandem_seats[rr]<-largest_remainder_method(votes=votes_list$votes[rr],
+                                                                national_laws_matrix$seats[which(national_laws_matrix$CC==i)],
+                                                                quorum = 0)
+        ##all other member states
+        }else{
+          votes_list$tandem_seats[rr]<-proporz::proporz(votes=votes_list$votes[rr],
+                                                        national_laws_matrix$seats[which(national_laws_matrix$CC==i)],
+                                                        method = national_laws_matrix$method[which(national_laws_matrix$CC==i)],
+                                                        quorum = 0)
+        }
       }
+    }
+    #if no country participates
+    if (all(tandem_participation$participation=="No")) {
+      #rename to none
+      for (i in 1:nrow(votes_list)){
+        if (votes_list$European.list.coalition[i]==paste(none," - ",votes_list$national.party[i])) {
+          votes_list$European.list.coalition[i]=none
+        }
+      }
+      
+      #return
+      return(votes_list)
     }
     
     #introduce technical coalition
@@ -867,7 +857,7 @@ server <- function(input, output,session=session) {
     }
     
     #already distributed seats by European party family
-    given_seats<-aggregate(nat.seats~European.list.coalition,data=votes_list,FUN=sum)
+    given_seats<-aggregate(tandem_seats~European.list.coalition,data=votes_list,FUN=sum)
     given_seats<-cbind(given_seats,hang.seats=FALSE)
     
     #add further exclusion in upper apportionment rule for edge cases (all list seats are already distributed with overhang or no further leveling is possible )
@@ -912,7 +902,7 @@ server <- function(input, output,session=session) {
       votes_list$votes[-rr]<-0
       
       #determine free seats usable for the upper apportionment
-      free.seats<-seats-sum(given_seats$nat.seats[which(given_seats$hang.seats)])
+      free.seats<-seats-sum(given_seats$tandem_seats[which(given_seats$hang.seats)])
       
       #aggregate European result
       upper.votes<-aggregate(votes~European.list.coalition,data = votes_list,FUN=sum)
@@ -922,7 +912,7 @@ server <- function(input, output,session=session) {
       #check for overhang
       overhang<-FALSE
       for (i in given_seats$European.list.coalition) {
-        if (given_seats$nat.seats[which(given_seats$European.list.coalition==i)]>upper.votes$eu.result[which(upper.votes$European.list.coalition==i)]&!given_seats$hang.seats[which(given_seats$European.list.coalition==i)]) {
+        if (given_seats$tandem_seats[which(given_seats$European.list.coalition==i)]>upper.votes$eu.result[which(upper.votes$European.list.coalition==i)]&!given_seats$hang.seats[which(given_seats$European.list.coalition==i)]) {
           given_seats$hang.seats[which(given_seats$European.list.coalition==i)]=TRUE
           votes_list$exclusion[which(votes_list$European.list.coalition==i)]=TRUE
           overhang<-TRUE
@@ -938,7 +928,7 @@ server <- function(input, output,session=session) {
       open.party.seats<-data.frame(upper.votes$European.list.coalition,seats=0)
       colnames(open.party.seats)<-c("European.list.coalition","seats")
       for (i in upper.votes$European.list.coalition) {
-        open.party.seats$seats[which(open.party.seats$European.list.coalition==i)]<-max(upper.votes$eu.result[which(upper.votes$European.list.coalition==i)]-given_seats$nat.seats[which(given_seats$European.list.coalition==i)],0)
+        open.party.seats$seats[which(open.party.seats$European.list.coalition==i)]<-max(upper.votes$eu.result[which(upper.votes$European.list.coalition==i)]-given_seats$tandem_seats[which(given_seats$European.list.coalition==i)],0)
       }
       #remove European.list.coalition with 0 seats
       open.party.seats<-open.party.seats[which(open.party.seats$seats>0),]
@@ -1005,7 +995,7 @@ server <- function(input, output,session=session) {
       # 
       #   for (i in colnames(seat.adjust)[unique(non.attributable[,2])]) {
       #     #add to given.seats and set European list coalition to hang seats
-      #     given_seats$nat.seats[which(given_seats$European.list.coalition==i)]<-given_seats$nat.seats[which(given_seats$European.list.coalition==i)]+sum(seat.adjust[,which(colnames(seat.adjust)==i)])
+      #     given_seats$tandem_seats[which(given_seats$European.list.coalition==i)]<-given_seats$tandem_seats[which(given_seats$European.list.coalition==i)]+sum(seat.adjust[,which(colnames(seat.adjust)==i)])
       #     given_seats$hang.seats[which(given_seats$European.list.coalition==i)]<-TRUE
       #     #votes_list to zero for coalition
       #     votes_list$votes[which(votes_list$European.list.coalition==i)]<-0
@@ -1053,7 +1043,7 @@ server <- function(input, output,session=session) {
                                       votes_list$Fivepercent)))
           }
           
-          votes_list$nat.seats[rr]<-divisor_round(votes_list$votes[rr],seats.to.dis[i,j])
+          votes_list$tandem_seats[rr]<-divisor_round(votes_list$votes[rr],seats.to.dis[i,j])
         }
       }
     }
