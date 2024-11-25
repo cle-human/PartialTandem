@@ -158,17 +158,14 @@ ui <- navbarPage("",
                           p(class="hangingindent","Sievert C, Cheng J, Aden-Buie G (2023). _bslib: Custom  'Bootstrap' 'Sass' Themes for 'shiny' and 'rmarkdown'_. R package version 0.5.0, https://CRAN.R-project.org/package=bslib"),
                           p(class="hangingindent","H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016."),
                           p(class="hangingindent","Xie Y, Cheng J, Tan X (2024). _DT: A Wrapper of the JavaScript Library 'DataTables'_. R package version 0.33, https://CRAN.R-project.org/package=DT"),
+                          
+                          h3(textOutput("ref5")),
+                          p(textOutput("ref6")),
+                          a(href="https://choffmann.eu","choffmann.eu"),
                           value = "tab2"
+                          
                  ),
-                 tabPanel("Impressum",
-                          p("Clemens Hoffmann"),
-                          p("Wissentschaftlicher Mitarbeiter am Lehrstuhl für Agrarpolitik der Georg-August-Universität Göttingen"),
-                          p("Platz der Göttinger Sieben 5"),
-                          p("37073 Göttingen"),
-                          p("Germany"),
-                          p("mail[at)choffmann.eu"),
-                          value = "tab3"
-                 ),
+                 
                  nav_spacer(),
                  tabPanel(
                    selectizeInput(
@@ -196,7 +193,7 @@ server <- function(input, output,session=session) {
   #data
   tandem_participation<-reactiveVal(as.data.frame(tandem_participation_ini))
   laws_matrix<-reactiveVal(as.data.frame(law.matrix24))
-  votes_list<-reactiveVal(as.data.frame(Votes2024))
+  votes_list<-reactiveVal(as.data.frame(Votes2024[,-7]))
   year<-reactiveVal(2024)
   
   observeEvent(input$lang,{
@@ -688,6 +685,14 @@ server <- function(input, output,session=session) {
                            national_laws_matrix,
                            use_technical_list,
                            language=1){
+    #add undisplayed historic seat distribution
+    if (election.year==2024) {
+      votes_list<-cbind(votes_list,Votes2024$seats)
+    }else{
+      votes_list<-cbind(votes_list,Votes2019$seats)
+    }
+    
+    
     #remove coalitions
     if (!identical(which(votes_list[,2]%in%localisation$coal), integer(0))) {
       votes_list<-votes_list[-which(votes_list[,2]%in%localisation$coal),]

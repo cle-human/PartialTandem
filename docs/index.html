@@ -1,28 +1,109 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Shiny App</title>
-    <script
-      src="./shinylive/load-shinylive-sw.js"
-      type="module"
-    ></script>
-    <script type="module">
-      import { runExportedApp } from "./shinylive/shinylive.js";
-      runExportedApp({
-        id: "root",
-        appEngine: "r",
-        relPath: "",
-      });
-    </script>
-    <link rel="stylesheet" href="./shinylive/style-resets.css" />
-    <link rel="stylesheet" href="./shinylive/shinylive.css" />
-    
-  </head>
-  <body>
-    
-    <div style="height: 100vh; width: 100vw" id="root"></div>
-    
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partial Tandem System</title>
+  <style>
+	/* styles.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f5f7fa;
+  color: #333;
+}
+
+.container {
+  max-width: 600px;
+  text-align: center;
+  background: white;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header {
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+}
+
+header p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.info {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.info p {
+  margin: 10px 0;
+}
+.info .highlight {
+  color: red;
+  font-weight: bold;
+}
+footer {
+  margin-top: 20px;
+}
+
+.app-link {
+  display: inline-block;
+  text-decoration: none;
+  color: white;
+  background: #3498db;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.app-link:hover {
+  background: #2980b9;
+}
+
+	</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Partial Tandem System</h1>
+      <p>For determining the seat allocation in the European Parliament</p>
+    </header>
+
+    <section class="info">
+      <p>
+        <strong>English:</strong> Please note that the app may take <span class="highlight">1-2 minutes</span> to load and runs slower on Firefox.  
+      </p>
+      <p>
+        <strong>Deutsch:</strong> Bitte beachten Sie, dass die App <span class="highlight">1-2 Minuten</span> zum Laden benötigt und unter Firefox langsamer läuft.  
+      </p>
+      <p>
+        <strong>Français:</strong> Veuillez noter que l'application peut prendre <span class="highlight">1-2 minutes</span> pour se charger et fonctionne plus lentement sur Firefox.  
+      </p>
+      <p>
+        <strong>Español:</strong> Tenga en cuenta que la aplicación puede tardar <span class="highlight">1-2 minutos</span> en cargarse y es más lenta en Firefox.  
+      </p>
+      <p>
+        <strong>Italiano:</strong> Si prega di notare che l'app potrebbe impiegare <span class="highlight">1-2 minuti</span> per caricarsi e funziona più lentamente su Firefox.  
+      </p>
+    </section>
+
+
+    <footer>
+      <a href="app.html" class="app-link">Start App</a>
+    </footer>
+  </div>
+</body>
 </html>
