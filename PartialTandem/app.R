@@ -61,11 +61,13 @@ ui <- navbarPage("",
                                           label =  NULL,
                                           choices = c("d'Hondt","Sainte-Lague"),
                                           selected  =  "d'Hondt"),
+                              hr(),
                               #technical list
                               p(textOutput("a1t2")),
                               checkboxInput(inputId = "use_technical_list",
                                             label = textOutput("a1t3",inline = TRUE),
-                                            value = TRUE), 
+                                            value = TRUE),
+                              hr(),
                               #minimum electoral diversity
                               p(textOutput("a1t4")),
                               sliderInput(inputId = "numdiv",
@@ -90,17 +92,19 @@ ui <- navbarPage("",
                               numericInput(inputId =  "eu_quorum",
                                            label = NULL,
                                            value =  .01),
-                              p(textOutput("a2t3")),
+                              strong(textOutput("a2t3")),
                               p(textOutput("a2t4")),
                               p(textOutput("a2t5")),
                               p(textOutput("a2t6")),
                               p(textOutput("a2t7")),
                               p(textOutput("a2t8")),
+                              hr(),
                               #respect 5%-Maximum
-                              checkboxInput(inputId = "respect5",
-                                            label = textOutput("a2t9",inline = TRUE),
-                                            value = TRUE),
+                              strong(textOutput("a2t9")),
                               p(textOutput("a2t10")),
+                              selectizeInput(inputId = "respect5",
+                                             label = NULL,
+                                             choices = NULL),
                               value = "accp2"
                             ),
                             accordion_panel(textOutput("a3title"),
@@ -190,6 +194,7 @@ ui <- navbarPage("",
 server <- function(input, output,session=session) {
   saved<-reactiveVal("EUT")
   saved2<-reactiveVal("tog")
+  saved3<-reactiveVal("yes")
   #data
   tandem_participation<-reactiveVal(as.data.frame(tandem_participation_ini))
   laws_matrix<-reactiveVal(as.data.frame(law.matrix24))
@@ -220,6 +225,14 @@ server <- function(input, output,session=session) {
                          choi},
                          selected = saved2())
     
+    updateSelectizeInput(session,"respect5",
+                         choices = {choi<-list("yes","no")
+                         names(choi)<-c(localisation$yes[lang],
+                                        localisation$no[lang])
+                         choi},
+                         selected = saved3())
+
+												 
     #yes & no translation
     edited_data <- tandem_participation()
     for (i in 1:nrow(edited_data)) {
@@ -273,6 +286,9 @@ server <- function(input, output,session=session) {
   })
   observeEvent(input$GC,{
     saved2(input$GC)
+  })
+  observeEvent(input$respect5,{
+    saved3(input$respect5)
   })
   
   #define data.frame inputs
@@ -418,7 +434,7 @@ server <- function(input, output,session=session) {
                    tandem_method = input$eu_method,
                    participation_all = input$all,
                    tandem_participation = tandem_participation(),
-                   fivepercentrule = input$respect5,
+                   fivepercentrule = ifelse(input$respect5=="yes",TRUE,FALSE),
                    min_list_div = input$numdiv/100,
                    national_laws_matrix = laws_matrix(),
                    use_technical_list = input$use_technical_list,
@@ -536,6 +552,13 @@ server <- function(input, output,session=session) {
                                         localisation$a5s2[lang])
                          choi},
                          selected = "tog")
+    
+    updateSelectizeInput(session,"respect5",
+                         choices = {choi<-list("yes","no")
+                         names(choi)<-c(localisation$yes[lang],
+                                        localisation$no[lang])
+                         choi},
+                         selected = "yes")
     #yes & no translation
     edited_data <- tandem_participation()
     for (i in 1:nrow(edited_data)) {
@@ -610,6 +633,12 @@ server <- function(input, output,session=session) {
                                         localisation$a5s2[lang])
                          choi},
                          selected = "tog")
+    updateSelectizeInput(session,"respect5",
+                         choices = {choi<-list("yes","no")
+                         names(choi)<-c(localisation$yes[lang],
+                                        localisation$no[lang])
+                         choi},
+                         selected = "yes")
     #yes & no translation
     edited_data <- tandem_participation()
     for (i in 1:nrow(edited_data)) {
