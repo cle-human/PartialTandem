@@ -20,8 +20,12 @@ CC<-c("AT","BE-NED","BE-FRA","BE-DEU","BG","HR","CY","CZ","DK","EE","FI","FR","D
 
 law.matrix19<- read.csv("data/laws2019.csv", sep=";")
 law.matrix24<- read.csv("data/laws2024.csv", sep=";")
+mueller.law.matrix19<- read.csv("data/muellerlaws2019.csv", sep=";")
+mueller.law.matrix24<- read.csv("data/muellerlaws2024.csv", sep=";")
 law.matrix19<-cbind(CC,law.matrix19[,-1])
 law.matrix24<-cbind(CC,law.matrix24[,-1])
+mueller.law.matrix19<-cbind(CC,mueller.law.matrix19[,-1])
+mueller.law.matrix24<-cbind(CC,mueller.law.matrix24[,-1])
 
 tandem_participation_ini<-matrix(rep("yes",29),29,1)
 tandem_participation_ini[c(1,c(3,4,5,6,7,8,9,12,13,14,16,17,19,23,24,25,27)+2)]<-"no"
@@ -42,6 +46,8 @@ ui <- navbarPage("",
                  tabPanel(textOutput("main0"),
                           # Application title
                           titlePanel(textOutput("title0")),
+                          #language support
+                          p(textOutput("t0")),
                           #short explanation
                           h5(textOutput("title0.0")),
                           p(textOutput("t0.1")),
@@ -55,18 +61,20 @@ ui <- navbarPage("",
                           
                           accordion(
                             accordion_panel(
-                              textOutput("a1title"),
+                              strong(textOutput("a1title")),
                               p(textOutput("a1t1")),
                               selectInput(inputId = "eu_method",
                                           label =  NULL,
                                           choices = c("d'Hondt","Sainte-Lague"),
-                                          selected  =  "d'Hondt"),
+                                          selected  =  "d'Hondt",
+                                          width = "100%"),
                               hr(),
                               #technical list
                               p(textOutput("a1t2")),
                               checkboxInput(inputId = "use_technical_list",
                                             label = textOutput("a1t3",inline = TRUE),
-                                            value = TRUE),
+                                            value = TRUE,
+                                            width = "100%"),
                               hr(),
                               #minimum electoral diversity
                               p(textOutput("a1t4")),
@@ -75,23 +83,28 @@ ui <- navbarPage("",
                                           min = 30,
                                           max = 90,
                                           step = 5,
-                                          value = 70),
+                                          value = 70,
+                                          width = "100%"),
                               p(textOutput("a1t5")),
                               value = "accp1"
                             ),
                             accordion_panel(
-                              textOutput("a2title"),
+                              strong(textOutput("a2title")),
                               p(textOutput("a2t1")),
                               #introduction of european threshold
                               selectizeInput(inputId = "quorum_type",
                                              label = NULL,
-                                             choices = NULL
+                                             choices = NULL,
+                                             width = "100%"
                               ),
                               #european quorum
                               p(textOutput("a2t2")),
                               numericInput(inputId =  "eu_quorum",
                                            label = NULL,
-                                           value =  .01),
+                                           value =  .01,
+                                           min = 0,
+                                           step = .01,
+                                           width = "100%"),
                               strong(textOutput("a2t3")),
                               p(textOutput("a2t4")),
                               p(textOutput("a2t5")),
@@ -104,42 +117,113 @@ ui <- navbarPage("",
                               p(textOutput("a2t10")),
                               selectizeInput(inputId = "respect5",
                                              label = NULL,
-                                             choices = NULL),
+                                             choices = NULL,
+                                             width = "100%"),
                               value = "accp2"
                             ),
-                            accordion_panel(textOutput("a3title"),
+                            accordion_panel(strong(textOutput("a3title")),
                                             p(textOutput("a3t1")),
                                             checkboxInput(inputId = "all",
                                                           label = textOutput("a3t2",inline = TRUE),
-                                                          value = FALSE),
+                                                          value = FALSE,
+                                                          width = "100%"),
                                             DTOutput("tandem_participation"),
                                             value = "accp3"
                             ),
-                            accordion_panel(textOutput("a4title"),
+                            accordion_panel(strong(textOutput("a4title")),
                                             p(textOutput("a4t1")),
                                             DTOutput("laws_matrix"),
                                             p(textOutput("a4t2")),
                                             value = "accp4"
                             ),
-                            accordion_panel(textOutput("a5title"),
+                            accordion_panel(strong(textOutput("a5title")),
                                             p(textOutput("a5t1")),
                                             p(textOutput("a5t2")),
                                             selectizeInput("GC",
                                                            label = NULL,
-                                                           choices = NULL),
+                                                           choices = NULL,
+                                                           width = "100%"),
                                             p(),
                                             DTOutput("votes_list"),
                                             #p("The list will be extended by one row if you click on this button.")#,
                                             #actionButton(inputId = "add.national.party", "Add party"),
                                             value = "accp5"
-                            )
+                            ),
+                            accordion_panel(#transnational lists
+                              strong(textOutput("a6title")),
+                              p(textOutput("a6t1")),
+                              p(textOutput("a6t2")),
+                              selectizeInput(inputId = "transversion",
+                                             label = NULL,
+                                             choices = NULL,
+                                             width = "100%"),
+                              hr(),
+                              #without pan-European constituency
+                              strong(textOutput("a6t3")),
+                              p(textOutput("a6t4")),
+                              p(textOutput("a6t5")),
+                              #options with req to change text output
+                              numericInput(inputId = "transseats1",
+                                          label = NULL,
+                                          min = 1,
+                                          step = 1,
+                                          value = 5,
+                                          width = "100%"),
+                              checkboxInput(inputId = "transoption1",
+                                            label = textOutput("a6t6",inline = TRUE),
+                                            value = FALSE,
+                                            width = "100%"),
+                              p(textOutput("a6t7")),
+                              hr(),
+                              #with pan-European constituency
+                              strong(textOutput("a6t8")),
+                              p(textOutput("a6t9")),
+                              p(textOutput("a6t10")),
+                              #options with req to change text output
+                              numericInput(inputId = "transseats2",
+                                          label = NULL,
+                                          min = 1,
+                                          step = 1,
+                                          value = 28,
+                                          width = "100%"),
+                              checkboxInput(inputId = "transoption2",
+                                            label = textOutput("a6t11",inline = TRUE),
+                                            value = FALSE,
+                                            width = "100%"),
+                              p(textOutput("a6t12")),
+                              value = "accp6"),
+                            accordion_panel(
+                              #special scenarios
+                              strong(textOutput("a7title")),
+                              p(textOutput("a7t1")),
+                              hr(),
+                              #no right wing parties
+                              strong(textOutput("a7o1t")),
+                              p(textOutput("a7o1t1")),
+                              actionButton("nofarright", textOutput("a7o1t2")),
+                              hr(),
+                              #full tandem
+                              strong(textOutput("a7o2t")),
+                              p(textOutput("a7o2t1")),
+                              actionButton("Pukelsheim", textOutput("a7o2t2")),
+                              hr(),
+                              #EP2022
+                              strong(textOutput("a7o3t")),
+                              p(textOutput("a7o3t1")),
+                              actionButton("EP2022", textOutput("a7o3t2")),
+                              hr(),
+                              #Müller 2021
+                              strong(textOutput("a7o4t")),
+                              p(textOutput("a7o4t1")),
+                              actionButton("Mueller", textOutput("a7o4t2")),
+                              value = "accp7")
                           ),
                           
                           
                           #transnational list coaltion requirements (number of countries and tandem countries)
                           #output
                           p(),
-                          h3(textOutput("res1")),
+                          h3(textOutput("res1"), align = "center"),
                           plotOutput("Europlot"),
                           uiOutput("results"),
                           #accordion(id="results",accordion_panel("test"))
@@ -152,6 +236,9 @@ ui <- navbarPage("",
                           p(textOutput("ref1")),
                           h3(textOutput("ref2")),
                           p(textOutput("ref3")), 
+                          p(class="hangingindent","Müller, M. (2021). Making the Most of Transnational Lists - Electoral Equality at EU Level Through Proportional Compensation. FES Policy Paper: https://brussels.fes.de/e/new-fes-policy-paper-making-the-most-of-transnational-lists.html"),
+                          p(class="hangingindent","Leinen, J., & Pukelsheim, F. (2021). The tandem system: A new electoral frame for the European Parliament. Zeitschrift für Parteienwissenschaften, (2), 115-124."),
+                          p(textOutput("ref3a")),
                           h3(textOutput("ref4")),
                           p(class="hangingindent","Chang W, Cheng J, Allaire J, Sievert C, Schloerke B, Xie Y, Allen J, McPherson J, Dipert A, Borges B (2022). _shiny: Web Application Framework for R_. R package version 1.7.4, <https://CRAN.R-project.org/package=shiny>"),
                           p(class="hangingindent","Pedersen T (2024). _ggforce: Accelerating 'ggplot2'_. R package version 0.4.2,  https://CRAN.R-project.org/package=ggforce"),
@@ -195,11 +282,29 @@ server <- function(input, output,session=session) {
   saved<-reactiveVal("EUT")
   saved2<-reactiveVal("tog")
   saved3<-reactiveVal("yes")
+  saved_trans<-reactiveVal("no")
+  
   #data
   tandem_participation<-reactiveVal(as.data.frame(tandem_participation_ini))
   laws_matrix<-reactiveVal(as.data.frame(law.matrix24))
   votes_list<-reactiveVal(as.data.frame(Votes2024[,-7]))
   year<-reactiveVal(2024)
+  
+  # diagram title 
+  # p - partial tandem
+  # f - full tandem
+  # e - EP proposal
+  # m - Müller
+  title.fun<-function(x,year){
+    lang<-as.numeric(input$lang)
+    switch(x,
+           p = paste0(localisation$res1a[lang],year,collapse = " "),
+           f = paste0(localisation$res1b[lang],year,collapse = " "),
+           e = paste0(localisation$res1c[lang],year,collapse = " "),
+           m = paste0(localisation$res1d[lang],year,collapse = " "))
+  }
+  
+  dia.title<-reactiveVal("e")
   
   observeEvent(input$lang,{
     lang<-as.numeric(input$lang)
@@ -208,7 +313,7 @@ server <- function(input, output,session=session) {
         localisation[lang,i]
       })
     })
-    output$res1<-renderText({paste0(localisation$res1[lang],year(),collapse = " ")})
+    output$res1<-renderText({title.fun(dia.title(),year())})
     updateSelectizeInput(session,"quorum_type",
                          choices = {choi<-list("EUT","NAT","ENT","NOT")
                          names(choi)<-c(localisation$a2s1[lang],
@@ -231,8 +336,15 @@ server <- function(input, output,session=session) {
                                         localisation$no[lang])
                          choi},
                          selected = saved3())
+    
+    updateSelectizeInput(session,"transversion",
+                         choices = {choi<-list("no","without","with")
+                         names(choi)<-c(localisation$a6s1[lang],
+                                        localisation$a6s2[lang],
+                                        localisation$a6s3[lang])
+                         choi},
+                         selected = saved_trans())
 
-												 
     #yes & no translation
     edited_data <- tandem_participation()
     for (i in 1:nrow(edited_data)) {
@@ -290,7 +402,9 @@ server <- function(input, output,session=session) {
   observeEvent(input$respect5,{
     saved3(input$respect5)
   })
-  
+  observeEvent(input$transversion,{
+    saved_trans(input$transversion)
+  })
   #define data.frame inputs
   output$tandem_participation <- renderDT({
     req(!input$all)
@@ -408,7 +522,26 @@ server <- function(input, output,session=session) {
     info <- input$tandem_participation_cell_edit
     edited_data <- tandem_participation()
     edited_data[info$row, info$col] <- info$value
+    
+    if (all(edited_data$participation%in%localisation$yes|input$all)) {
+      dia.title("f")
+      output$res1<-renderText({title.fun(dia.title(),year())})
+    }else{
+      dia.title("p")
+      output$res1<-renderText({title.fun(dia.title(),year())})
+    }
     tandem_participation(edited_data)
+  })
+  
+  observeEvent(input$all,{
+    tandem_partici<-tandem_participation()
+    if(input$all){
+      dia.title("f")
+      output$res1<-renderText({title.fun(dia.title(),year())})
+    }else if (any(tandem_partici$participation%in%localisation$yes)){
+      dia.title("p")
+      output$res1<-renderText({title.fun(dia.title(),year())})
+    }
   })
   
   observeEvent(input$laws_matrix_cell_edit, {
@@ -438,6 +571,11 @@ server <- function(input, output,session=session) {
                    min_list_div = input$numdiv/100,
                    national_laws_matrix = laws_matrix(),
                    use_technical_list = input$use_technical_list,
+                   transversion = input$transversion,
+                   transseats1 = input$transseats1,
+                   transoption1 = input$transoption1,
+                   transseats2 = input$transseats2,
+                   transoption2 = input$transoption2,
                    language = as.numeric(input$lang)
     )
   })
@@ -459,30 +597,93 @@ server <- function(input, output,session=session) {
       nameofparty<-paste(colnames(localisation)[which(results.tab$European.list.coalition[i]==localisation[lang,])[1]],"l",sep = "")
       results.tab$European.list.coalition.long[i]<-localisation[lang,which(colnames(localisation)==nameofparty)]#######fehler
     }
-    #create accordion panels
-    panel_list <- lapply(1:nrow(results.tab), function(i){
-      rr<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats>1)
-      #order by number of seats
-      rro<-rr[order(votes_list$tandem_seats[rr],decreasing = TRUE)]
-      rr1<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats==1)
-      panel_content<- paste(
-        paste(
-          sprintf("%s - %s - %d %s",votes_list$CC[rro],votes_list$national.party[rro],votes_list$tandem_seats[rro],localisation$res3[lang]),
-          collapse = "<br>"
-        ),
-        paste(
-          sprintf("%s - %s - %d %s",votes_list$CC[rr1],votes_list$national.party[rr1],votes_list$tandem_seats[rr1],localisation$res4[lang]),
-          collapse = "<br>" 
-        ),sep = "<br>"
-      )
+    #create accordion panels when no transnational lists are used
+    if (input$transversion=="no") {
+      panel_list <- lapply(1:nrow(results.tab), function(i){
+        #find member parties with more than one seat
+        rr<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats>1)
+        #order by number of seats
+        rro<-rr[order(votes_list$tandem_seats[rr],decreasing = TRUE)]
+        #find member parties with one seat
+        rr1<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats==1)
+        
+        panel_content<- paste(
+          paste(
+            sprintf("%s - %s - %d %s",votes_list$CC[rro],votes_list$national.party[rro],votes_list$tandem_seats[rro],localisation$res3[lang]),
+            collapse = "<br>"
+          ),
+          paste(
+            sprintf("%s - %s - %d %s",votes_list$CC[rr1],votes_list$national.party[rr1],votes_list$tandem_seats[rr1],localisation$res4[lang]),
+            collapse = "<br>" 
+          ),sep = "<br>"
+        )
+        
+        accordion_panel(
+          title = paste(results.tab$European.list.coalition.long[i]," - ",results.tab$tandem_seats[i],ifelse(results.tab$tandem_seats[i]>1,localisation$res3[lang],localisation$res4[lang]) ),
+          #paste(votes_list$national.party[rr], " - ",votes_list$tandem_seats[rr],"seats",collapse = " \n "),
+          HTML(panel_content),
+          value= paste0("panel",i)
+        )
+      })
+    }else{
+      notrans<-FALSE
+      nomultiseats<-FALSE
+      nosingle<-FALSE
       
-      accordion_panel(
-        title = paste(results.tab$European.list.coalition.long[i]," - ",results.tab$tandem_seats[i],ifelse(results.tab$tandem_seats[i]>1,localisation$res3[lang],localisation$res4[lang]) ),
-        #paste(votes_list$national.party[rr], " - ",votes_list$tandem_seats[rr],"seats",collapse = " \n "),
-        HTML(panel_content),
-        value= paste0("panel",i)
-      )
-    })
+      panel_list <- lapply(1:nrow(results.tab), function(i){
+        #find transnational list
+        if (any(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$CC=="EU"&votes_list$tandem_seats>0)) {
+          reu<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$CC=="EU"&votes_list$tandem_seats>0)
+        }else{
+          notrans<-TRUE
+        }
+        #find member parties with more than one seat
+        if (any(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats>1&votes_list$CC!="EU")){
+          rr<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats>1&votes_list$CC!="EU")
+          #order by number of seats
+          rro<-rr[order(votes_list$tandem_seats[rr],decreasing = TRUE)]
+        }else{
+          nomultiseats<-TRUE
+        }
+        
+        #find member parties with one seat
+        if (any(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats==1&votes_list$CC!="EU")) {
+          rr1<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats==1&votes_list$CC!="EU")
+        }else{
+          nosingle<-TRUE
+        }
+        
+        panel_content<- paste(
+          if (!notrans) {
+            paste(
+              sprintf("%s - %s - %d %s",votes_list$CC[reu],votes_list$national.party[reu],votes_list$tandem_seats[reu],ifelse(votes_list$tandem_seats[reu]>1,localisation$res3[lang],localisation$res4[lang])),
+              collapse = "<br>"
+            )
+          },
+          if (!nomultiseats) {
+            paste(
+              sprintf("%s - %s - %d %s",votes_list$CC[rro],votes_list$national.party[rro],votes_list$tandem_seats[rro],localisation$res3[lang]),
+              collapse = "<br>"
+            )
+          },
+          if (!nosingle) {
+            paste(
+              sprintf("%s - %s - %d %s",votes_list$CC[rr1],votes_list$national.party[rr1],votes_list$tandem_seats[rr1],localisation$res4[lang]),
+              collapse = "<br>" 
+            )
+          },sep = "<br>"
+        )
+        
+        accordion_panel(
+          title = paste(results.tab$European.list.coalition.long[i]," - ",results.tab$tandem_seats[i],ifelse(results.tab$tandem_seats[i]>1,localisation$res3[lang],localisation$res4[lang]) ),
+          #paste(votes_list$national.party[rr], " - ",votes_list$tandem_seats[rr],"seats",collapse = " \n "),
+          HTML(panel_content),
+          value= paste0("panel",i)
+        )
+
+      })
+    }
+    
     
     accordion(id = "results_acc", !!!panel_list, open = FALSE)
   })
@@ -525,13 +726,11 @@ server <- function(input, output,session=session) {
   
   
   observeEvent(input$reset_2019,{
-    #updateSelectInput(session,"quorum_type", "EUT")
     updateNumericInput(session,"eu_quorum", value =  .01)
-    updateCheckboxInput(session,"respect5", value = TRUE)
     updateSelectInput(session,"eu_method", selected =  "d'Hondt")
     updateCheckboxInput(session,"use_technical_list",value = TRUE)
     updateSliderInput(session,"numdiv", value = 70)
-    #updateSelectInput(session,"GC","tog")
+    updateCheckboxInput(session,"all", value = FALSE)
     tandem_participation(as.data.frame(tandem_participation_ini))
     laws_matrix(as.data.frame(law.matrix19))
     votes_list(as.data.frame(Votes2019[,-7]))
@@ -559,6 +758,19 @@ server <- function(input, output,session=session) {
                                         localisation$no[lang])
                          choi},
                          selected = "yes")
+    
+    updateNumericInput(session,"transseats1",value = 5)
+    updateNumericInput(session,"transseats2",value = 28)
+    updateCheckboxInput(session,"transoption1",value = TRUE)
+    updateCheckboxInput(session,"transoption2",value = TRUE)
+    updateSelectizeInput(session,"transversion",
+                         choices = {choi<-list("no","without","with")
+                         names(choi)<-c(localisation$a6s1[lang],
+                                        localisation$a6s2[lang],
+                                        localisation$a6s3[lang])
+                         choi},
+                         selected = "no")
+    
     #yes & no translation
     edited_data <- tandem_participation()
     for (i in 1:nrow(edited_data)) {
@@ -603,16 +815,16 @@ server <- function(input, output,session=session) {
       edited_data$alternative[i]<-party.names[rr,lang]      
     }
     votes_list(edited_data)
+    dia.title("p")
+    output$res1<-renderText({title.fun(dia.title(),year())})
   })
   
   observeEvent(input$reset_2024,{
-    #updateSelectInput(session,"quorum_type", "EUT")
     updateNumericInput(session,"eu_quorum", value =  .01)
-    updateCheckboxInput(session,"respect5", value = TRUE)
     updateSelectInput(session,"eu_method", selected =  "d'Hondt")
     updateCheckboxInput(session,"use_technical_list",value = TRUE)
     updateSliderInput(session,"numdiv", value = 70)
-    #updateSelectInput(session,"GC","tog")
+    updateCheckboxInput(session,"all", value = FALSE)
     tandem_participation(as.data.frame(tandem_participation_ini))
     laws_matrix(as.data.frame(law.matrix24))
     votes_list(as.data.frame(Votes2024[,-7]))
@@ -639,6 +851,19 @@ server <- function(input, output,session=session) {
                                         localisation$no[lang])
                          choi},
                          selected = "yes")
+    
+    updateNumericInput(session,"transseats1",value = 5)
+    updateNumericInput(session,"transseats2",value = 28)
+    updateCheckboxInput(session,"transoption1",value = TRUE)
+    updateCheckboxInput(session,"transoption2",value = TRUE)
+    updateSelectizeInput(session,"transversion",
+                         choices = {choi<-list("no","without","with")
+                         names(choi)<-c(localisation$a6s1[lang],
+                                        localisation$a6s2[lang],
+                                        localisation$a6s3[lang])
+                         choi},
+                         selected = "no")
+    
     #yes & no translation
     edited_data <- tandem_participation()
     for (i in 1:nrow(edited_data)) {
@@ -683,6 +908,170 @@ server <- function(input, output,session=session) {
       edited_data$alternative[i]<-party.names[rr,lang]      
     }
     votes_list(edited_data)
+    dia.title("p")
+    output$res1<-renderText({title.fun(dia.title(),year())})
+  })
+  
+  observeEvent(input$nofarright,{
+    lang<-as.numeric(input$lang)
+    updateNumericInput(session,"eu_quorum", value =  .05)
+    updateSelectInput(session,"eu_method", selected =  "d'Hondt")
+    updateCheckboxInput(session,"use_technical_list",value = TRUE)
+    updateSliderInput(session,"numdiv", value = 40)
+    tandem_participation(as.data.frame(tandem_participation_ini))
+    updateSelectizeInput(session,"quorum_type",
+                         choices = {choi<-list("EUT","NAT","ENT","NOT")
+                         names(choi)<-c(localisation$a2s1[lang],
+                                        localisation$a2s2[lang],
+                                        localisation$a2s3[lang],
+                                        localisation$a2s4[lang])
+                         choi},
+                         selected = "EUT")
+    
+    updateSelectizeInput(session,"GC",
+                         choices = {choi<-list("tog","sep")
+                         names(choi)<-c(localisation$a5s1[lang],
+                                        localisation$a5s2[lang])
+                         choi},
+                         selected = "tog")
+    updateSelectizeInput(session,"respect5",
+                         choices = {choi<-list("yes","no")
+                         names(choi)<-c(localisation$yes[lang],
+                                        localisation$no[lang])
+                         choi},
+                         selected = "no")
+    tandem_partici<-tandem_participation()
+    if(input$all|all(tandem_partici$participation%in%localisation$yes)){
+      dia.title("f")
+      output$res1<-renderText({title.fun(dia.title(),year())})
+    }else if(!input$all&any(tandem_partici$participation%in%localisation$yes)){
+      dia.title("p")
+      output$res1<-renderText({title.fun(dia.title(),year())})
+    }
+  })
+  
+  observeEvent(input$Pukelsheim,{
+    lang<-as.numeric(input$lang)
+    updateNumericInput(session,"eu_quorum", value =  0)
+    updateSelectInput(session,"eu_method", selected =  "Sainte-Lague")
+    updateCheckboxInput(session,"use_technical_list",value = FALSE)
+    updateSliderInput(session,"numdiv", value = 90)
+    updateCheckboxInput(session,"all", value = TRUE)
+    updateSelectizeInput(session,"quorum_type",
+                         choices = {choi<-list("EUT","NAT","ENT","NOT")
+                         names(choi)<-c(localisation$a2s1[lang],
+                                        localisation$a2s2[lang],
+                                        localisation$a2s3[lang],
+                                        localisation$a2s4[lang])
+                         choi},
+                         selected = "NOT")
+    
+    updateSelectizeInput(session,"GC",
+                         choices = {choi<-list("tog","sep")
+                         names(choi)<-c(localisation$a5s1[lang],
+                                        localisation$a5s2[lang])
+                         choi},
+                         selected = "sep")
+    updateSelectizeInput(session,"respect5",
+                         choices = {choi<-list("yes","no")
+                         names(choi)<-c(localisation$yes[lang],
+                                        localisation$no[lang])
+                         choi},
+                         selected = "no")
+    updateSelectizeInput(session,"transversion",
+                         choices = {choi<-list("no","without","with")
+                         names(choi)<-c(localisation$a6s1[lang],
+                                        localisation$a6s2[lang],
+                                        localisation$a6s3[lang])
+                         choi},
+                         selected = "no")
+    dia.title("f")
+    output$res1<-renderText({title.fun(dia.title(),year())})
+    
+  })
+  
+  observeEvent(input$EP2022,{
+    lang<-as.numeric(input$lang)
+    updateNumericInput(session,"eu_quorum", value =  0)
+    updateSelectInput(session,"eu_method", selected =  "d'Hondt")
+    updateCheckboxInput(session,"use_technical_list",value = FALSE)
+    updateSliderInput(session,"numdiv", value = 70)
+    updateCheckboxInput(session,"all", value = FALSE)
+    tandem_participation(data.frame(CC=CC,participation="no"))
+    updateSelectizeInput(session,"quorum_type",
+                         choices = {choi<-list("EUT","NAT","ENT","NOT")
+                         names(choi)<-c(localisation$a2s1[lang],
+                                        localisation$a2s2[lang],
+                                        localisation$a2s3[lang],
+                                        localisation$a2s4[lang])
+                         choi},
+                         selected = "NOT")
+    
+    updateSelectizeInput(session,"GC",
+                         choices = {choi<-list("tog","sep")
+                         names(choi)<-c(localisation$a5s1[lang],
+                                        localisation$a5s2[lang])
+                         choi},
+                         selected = "tog")
+    
+    #updateNumericInput(session,"transseats1",value = 5)
+    updateNumericInput(session,"transseats2",value = 28)
+    #updateCheckboxInput(session,"transoption1",value = TRUE)
+    updateCheckboxInput(session,"transoption2",value = FALSE)
+    updateSelectizeInput(session,"transversion",
+                         choices = {choi<-list("no","without","with")
+                         names(choi)<-c(localisation$a6s1[lang],
+                                        localisation$a6s2[lang],
+                                        localisation$a6s3[lang])
+                         choi},
+                         selected = "with")
+    dia.title("e")
+    output$res1<-renderText({title.fun(dia.title(),year())})
+  })
+  
+  observeEvent(input$Mueller,{
+    updateNumericInput(session,"eu_quorum", value =  0)
+    updateSelectInput(session,"eu_method", selected =  "Sainte-Lague")
+    updateCheckboxInput(session,"use_technical_list",value = FALSE)
+    updateSliderInput(session,"numdiv", value = 70)
+    updateCheckboxInput(session,"all", value = FALSE)
+    tandem_participation(data.frame(CC=CC,participation="no"))
+    lang<-as.numeric(input$lang)
+    updateSelectizeInput(session,"quorum_type",
+                         choices = {choi<-list("EUT","NAT","ENT","NOT")
+                         names(choi)<-c(localisation$a2s1[lang],
+                                        localisation$a2s2[lang],
+                                        localisation$a2s3[lang],
+                                        localisation$a2s4[lang])
+                         choi},
+                         selected = "NOT")
+    
+    updateSelectizeInput(session,"GC",
+                         choices = {choi<-list("tog","sep")
+                         names(choi)<-c(localisation$a5s1[lang],
+                                        localisation$a5s2[lang])
+                         choi},
+                         selected = "tog")
+    
+    if (year()==2019) {
+      laws_matrix(as.data.frame(mueller.law.matrix19))
+    }
+    if (year()==2024) {
+      laws_matrix(as.data.frame(mueller.law.matrix24))
+    }
+    updateNumericInput(session,"transseats1",value = 5)
+    updateNumericInput(session,"transseats2",value = 76)
+    updateCheckboxInput(session,"transoption1",value = TRUE)
+    updateCheckboxInput(session,"transoption2",value = TRUE)
+    updateSelectizeInput(session,"transversion",
+                         choices = {choi<-list("no","without","with")
+                         names(choi)<-c(localisation$a6s1[lang],
+                                        localisation$a6s2[lang],
+                                        localisation$a6s3[lang])
+                         choi},
+                         selected = "with")
+    dia.title("m")
+    output$res1<-renderText({title.fun(dia.title(),year())})
   })
   
   observeEvent(input$GC,{
@@ -713,12 +1102,17 @@ server <- function(input, output,session=session) {
                            min_list_div,
                            national_laws_matrix,
                            use_technical_list,
+                           transversion,
+                           transseats1,
+                           transoption1,
+                           transseats2,
+                           transoption2,
                            language=1){
     #add undisplayed historic seat distribution
     if (election.year==2024) {
-      votes_list<-cbind(votes_list,Votes2024$seats)
+      votes_list<-cbind(votes_list,seats=Votes2024$seats)
     }else{
-      votes_list<-cbind(votes_list,Votes2019$seats)
+      votes_list<-cbind(votes_list,seats=Votes2019$seats)
     }
     
     
@@ -842,6 +1236,97 @@ server <- function(input, output,session=session) {
     
     #add seats column
     votes_list<-cbind(votes_list,tandem_seats=0)
+    
+    #transnational lists with pan-European constituency
+    if (transversion=="with") {
+      translist<-localisation$translist[language]
+      #which votes should count for European result
+      if (threshold_type=="EUT") {
+        rr<-which(votes_list$EU.threshold)
+      }else if (threshold_type=="ENT"){
+        rr<-which(votes_list$EU.threshold|votes_list$Nat.threshold)
+      }else if (threshold_type=="NAT") {
+        rr<-which(votes_list$Nat.threshold)
+      }else{
+        rr<-which(votes_list$EU.threshold)
+      }
+      if (fivepercentrule) {
+        rr<-sort(union(rr,which(votes_list$Fivepercent)))
+      }
+      
+      if (transoption2) {
+        #distribute seats as if all countries have opt-out
+        for (i in tandem_participation$CC) {
+          #which rows belong to the state
+          rr2<-which(votes_list$CC==i)#&votes_list$Nat.threshold)
+          #check whether number of seats has changed for a country
+          if (sum(votes_list$seats[rr2])==national_laws_matrix$seats[which(national_laws_matrix$CC==i)]) {
+            #copy seats from real result
+            votes_list$tandem_seats[rr2]<-votes_list$seats[rr2]
+          }else{
+            #remove below threshold
+            rr2<-which(votes_list$CC==i&votes_list$Nat.threshold)
+            #check if STV or Quota
+            if (national_laws_matrix$method[which(national_laws_matrix$CC==i)]=="Quota"|national_laws_matrix$method[which(national_laws_matrix$CC==i)]=="Hare-Niemeyer"|national_laws_matrix$method[which(national_laws_matrix$CC==i)]=="STV") {
+              votes_list$tandem_seats[rr2]<-largest_remainder_method(votes=votes_list$votes[rr2],
+                                                                    national_laws_matrix$seats[which(national_laws_matrix$CC==i)],
+                                                                    quorum = 0)
+              ##all other member states
+            }else{
+              votes_list$tandem_seats[rr2]<-proporz::proporz(votes=votes_list$votes[rr2],
+                                                            national_laws_matrix$seats[which(national_laws_matrix$CC==i)],
+                                                            method = national_laws_matrix$method[which(national_laws_matrix$CC==i)],
+                                                            quorum = 0)
+            }
+          }
+        }
+        #determine European result with additional seats
+        #aggregate by votes and seats
+        # votes_list$exclusion=FALSE
+        # votes_list$exclusion[rr]=TRUE
+        # EU.votes1<-aggregate(cbind(tandem_seats,votes)~European.list.coalition+exclusion,data = votes_list,FUN=sum,drop=FALSE)
+        EU.nat.seats<-aggregate(tandem_seats~European.list.coalition,data = votes_list,FUN=sum,subset = c(tandem_seats>0))
+        EU.votes<-aggregate(votes~European.list.coalition,data = votes_list[rr,],FUN=sum)
+        #combine both
+        EU.votes<-merge(EU.nat.seats,EU.votes,by="European.list.coalition",all = TRUE)
+        EU.votes[is.na(EU.votes)]=0
+        #remove parties without list coalition + note their seats
+        if (any(substr(EU.votes$European.list.coalition,1,3)==substr(none,1,3))) {
+          nocoal.seats<-sum(EU.votes$tandem_seats[which(substr(EU.votes$European.list.coalition,1,3)==substr(none,1,3))])
+          EU.votes<-EU.votes[-(which(substr(EU.votes$European.list.coalition,1,3)==substr(none,1,3))),]
+        }else{
+          nocoal.seats<-0
+        }
+        #determine EU result
+        EU.votes$seats<-proporz::proporz(EU.votes$votes,sum(national_laws_matrix$seats)+transseats2-nocoal.seats,tandem_method,0)
+        #calculate gap for transnational seats
+        EU.votes$trans_seats<-EU.votes$seats-EU.votes$tandem_seats
+        #if gap is negative for party -> exclude party + determine European result again
+        while (any(EU.votes$trans_seats<0)) {
+          nocoal.seats<-nocoal.seats+sum(EU.votes$tandem_seats[which(EU.votes$trans_seats<0)])
+          EU.votes<-EU.votes[-(which(EU.votes$trans_seats<0)),]
+          EU.votes$seats<-proporz::proporz(EU.votes$votes,sum(national_laws_matrix$seats)+transseats2-nocoal.seats,tandem_method,0)
+          EU.votes$trans_seats<-EU.votes$seats-EU.votes$tandem_seats
+        }
+        #set tandem seats back to 0
+        votes_list$tandem_seats=0
+      }else{
+        #aggregate by votes
+        EU.votes<-aggregate(votes~European.list.coalition,data = votes_list[rr,],FUN=sum)
+        #remove parties without trans list
+        if (any(substr(EU.votes$European.list.coalition,1,3)==substr(none,1,3))) {
+          EU.votes<-EU.votes[-(which(substr(EU.votes$European.list.coalition,1,3)==substr(none,1,3))),]
+        }
+        #determine European result
+        EU.votes$trans_seats<-proporz::proporz(EU.votes$votes,transseats2,tandem_method,0)
+      }
+      #add to votes_list as seats not tandem_seats
+      votes_list<-rbind(votes_list,data.frame(CC="EU",European.list.coalition=EU.votes$European.list.coalition,alternative="no alternative",national.party=paste0(EU.votes$European.list.coalition," ",translist),votes=EU.votes$votes,comment="",seats=EU.votes$trans_seats,EU.threshold=FALSE,Nat.threshold=FALSE,Fivepercent=FALSE,tandem_seats=0)) #Error in match.names: Namen passen nicht zu den vorhergehenden Namen
+      #add to laws matrix
+      national_laws_matrix<-rbind(national_laws_matrix,data.frame(CC="EU",seats=transseats2,threshold=0,method=tandem_method))
+      #add to participation matrix
+      tandem_participation<-rbind(tandem_participation,data.frame(CC="EU",participation="No"))
+    }
     
     #distribution of seats in non-tandem states
     for (i in tandem_participation$CC[which(tandem_participation$participation=="No")]) {
@@ -975,21 +1460,15 @@ server <- function(input, output,session=session) {
       #open seats in a tandem state are reduced if a European list coalition must be fixed due to an overhang which cannot be leveled
       
       #lower apportionment
+      opt_in<-tandem_participation$CC[which(tandem_participation$participation=="Yes")]
       #create states x list coalitions matrix for all included votes
-      votes_matrix<-aggregate(votes~CC+European.list.coalition,data=votes_list,FUN=sum) 
+      votes_matrix<-aggregate(votes~CC+European.list.coalition,data=votes_list,FUN=sum,subset = c(CC %in% opt_in)) 
       colnames(votes_matrix)<-c("CC","European.list.coalition","votes")
       #remove list coalitions without seats
       votes_matrix<-votes_matrix[which(votes_matrix$European.list.coalition %in% open.party.seats$European.list.coalition),]
       
       votes_matrix<-as.matrix(xtabs(votes~CC+European.list.coalition,votes_matrix))
       votes_matrix<-votes_matrix[,order(colSums(votes_matrix),decreasing = TRUE)]
-      
-      #remove non tandem states
-      for (i in CC) {
-        if (tandem_participation[which(tandem_participation[,1]==i),2]=="No" ) {
-          votes_matrix<-votes_matrix[-which(rownames(votes_matrix)==i),]
-        }
-      }
       
       #match seat.adjust to votes_matrix
       seat.adjust<-seat.adjust[match(rownames(votes_matrix),rownames(seat.adjust)),match(colnames(votes_matrix),colnames(seat.adjust))]
@@ -1006,7 +1485,7 @@ server <- function(input, output,session=session) {
         setTimeLimit(15)
         t(lower_apportionment(t(votes_matrix),open.state.seats$seats,open.party.seats$seats))
       },error = function(e){
-        stop("Lower apportionment couldn't determined probably because too many seats had to distributed in the big EU member states. There are ways to deal with this problem such as a seat cap for national party without European list coalition or a fall back to the old electoral system with 27 indepedent elections. An inbetween solution between the later and the tandem system is also thinkable. Here neither of this options are implemented.")
+        stop(print(localisation$error[language]))
       })
       #if the lower apportionment doesn't converge into a result, ones are added to zero cells in votes_matrix
       # if (all(lower.res=="error")) {
@@ -1088,6 +1567,83 @@ server <- function(input, output,session=session) {
         votes_list$European.list.coalition[i]=none
       }
     }
+    
+    
+    # transnational lists
+    if (transversion=="without") {
+      #opt-in countries of trans lists
+      if (transoption1){opt_in<-tandem_participation$CC}else{
+        opt_in<-tandem_participation$CC[which(tandem_participation$participation=="Yes")]
+      } 
+      
+      #translations
+      translist<-localisation$translist[language]
+      GREEN<-localisation$GREEN[language]
+      EGP<-localisation$EGP[language]
+      EFA<-localisation$EFA[language]
+      EUPP<-localisation$EUPP[language]
+      VOLT<-localisation$VOLT[language]
+      DiEM25<-localisation$DiEM25[language]
+      # RENEW<-localisation$RENEW[language]
+      # ALDE<-localisation$ALDE[language]
+      # EDP<-localisation$EDP[language]
+
+      #going through list coalitions
+      for (i in unique(votes_list$European.list.coalition)){
+        #ignore none and technical
+        if (i==none) next
+        if (i==tech.list.coal) next
+        #split RENEW
+        # if (i==RENEW){
+        #   for (j in c(ALDE,EDP)) {
+        #     rr<-which(votes_list$CC %in% opt_in & votes_list$European.list.coalition==i & votes_list$alternative==j)
+        #     if (sum(votes_list$tandem_seats[rr])<transseats1) {
+        #       votes_list$tandem_seats[rr]<-0
+        #       votes_list<-rbind(votes_list,c("EU",i,j,paste0(j," ",translist,collapse = " "),0,"",TRUE,TRUE,TRUE,sum(votes_list$tandem_seats),TRUE))
+        #     }else{
+        #       votes_list$tandem_seats[rr]<-votes_list$tandem_seats[rr]-divisor_round(votes_list$tandem_seats[rr],transseats1)
+        #       votes_list<-rbind(votes_list,c("EU",i,j,paste0(j," ",translist,collapse = " "),0,"",TRUE,TRUE,TRUE,transseats1,TRUE))
+        #     }
+        #   }
+        #   next
+        # }
+        #split GREEN if existent
+        if (i==GREEN) {
+          for (j in c(EGP,EFA,EUPP,VOLT,DiEM25)) {
+            rr<-which(votes_list$CC %in% opt_in & votes_list$European.list.coalition==i & votes_list$alternative==j)
+            tandem_seats<-as.numeric(votes_list$tandem_seats)[rr]
+            votes_shares<-as.numeric(votes_list$votes)[rr]/sum(as.numeric(votes_list$votes)[rr])
+            votes_shares[which(tandem_seats==0)]<-0
+            if (sum(tandem_seats)<transseats1) {
+              votes_list<-rbind(votes_list,c("EU",i,j,paste0(j," ",translist,collapse = " "),0,"",0,TRUE,TRUE,TRUE,sum(tandem_seats),TRUE))
+              votes_list$tandem_seats[rr]<-0
+            }else{
+              votes_list$tandem_seats[rr]<-tandem_seats-divisor_round(tandem_seats+votes_shares,transseats1)##########no unif, instead 0 if zero seats else + share in party votes
+              votes_list<-rbind(votes_list,c("EU",i,j,paste0(j," ",translist,collapse = " "),0,"",0,TRUE,TRUE,TRUE,transseats1,TRUE))
+            }
+          }
+          next
+        }
+
+        rr<-which(votes_list$CC %in% opt_in & votes_list$European.list.coalition==i)
+        tandem_seats<-as.numeric(votes_list$tandem_seats)[rr]
+        votes_shares<-as.numeric(votes_list$votes)[rr]/sum(as.numeric(votes_list$votes)[rr])
+        votes_shares[which(tandem_seats==0)]<-0
+        #check whether enough seats are available
+        #remove seats from national parties
+        #add transnational list to European list coalition
+        if (sum(as.numeric(votes_list$tandem_seats)[rr])<transseats1) {
+          votes_list<-rbind(votes_list,c("EU",i,"no alternative",paste0(i," ",translist,collapse = " "),0,"",0,TRUE,TRUE,TRUE,sum(tandem_seats),TRUE))
+          votes_list$tandem_seats[rr]<-0
+        }else{
+          votes_list$tandem_seats[rr]<-tandem_seats-divisor_round(tandem_seats+votes_shares,transseats1)
+          votes_list<-rbind(votes_list,c("EU",i,"no alternative",paste0(i," ",translist,collapse = " "),0,"",0,TRUE,TRUE,TRUE,transseats1,TRUE))
+        }
+
+      }
+    }
+    #convert to numbers
+    votes_list$tandem_seats<-as.numeric(votes_list$tandem_seats)
     
     #return
     return(votes_list)
