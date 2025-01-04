@@ -595,7 +595,7 @@ server <- function(input, output,session=session) {
       
       
       nameofparty<-paste(colnames(localisation)[which(results.tab$European.list.coalition[i]==localisation[lang,])[1]],"l",sep = "")
-      results.tab$European.list.coalition.long[i]<-localisation[lang,which(colnames(localisation)==nameofparty)]#######fehler
+      results.tab$European.list.coalition.long[i]<-localisation[lang,which(colnames(localisation)==nameofparty)]
     }
     #create accordion panels when no transnational lists are used
     if (input$transversion=="no") {
@@ -626,52 +626,29 @@ server <- function(input, output,session=session) {
         )
       })
     }else{
-      notrans<-FALSE
-      nomultiseats<-FALSE
-      nosingle<-FALSE
-      
       panel_list <- lapply(1:nrow(results.tab), function(i){
         #find transnational list
         if (any(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$CC=="EU"&votes_list$tandem_seats>0)) {
           reu<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$CC=="EU"&votes_list$tandem_seats>0)
         }else{
-          notrans<-TRUE
+          reu<-c()
         }
         #find member parties with more than one seat
-        if (any(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats>1&votes_list$CC!="EU")){
-          rr<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats>1&votes_list$CC!="EU")
-          #order by number of seats
-          rro<-rr[order(votes_list$tandem_seats[rr],decreasing = TRUE)]
-        }else{
-          nomultiseats<-TRUE
+        rr<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats>0&votes_list$CC!="EU")
+        #order by number of seats
+        rr<-rr[order(votes_list$tandem_seats[rr],decreasing = TRUE)]
+        #combine
+        if (length(reu)>0) {
+          rr<-c(reu,rr)
         }
         
-        #find member parties with one seat
-        if (any(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats==1&votes_list$CC!="EU")) {
-          rr1<-which(votes_list$European.list.coalition==results.tab$European.list.coalition[i]&votes_list$tandem_seats==1&votes_list$CC!="EU")
-        }else{
-          nosingle<-TRUE
-        }
         
         panel_content<- paste(
-          if (!notrans) {
-            paste(
-              sprintf("%s - %s - %d %s",votes_list$CC[reu],votes_list$national.party[reu],votes_list$tandem_seats[reu],ifelse(votes_list$tandem_seats[reu]>1,localisation$res3[lang],localisation$res4[lang])),
-              collapse = "<br>"
+          paste(
+            sprintf("%s - %s - %d %s",votes_list$CC[rr],votes_list$national.party[rr],votes_list$tandem_seats[rr],ifelse(votes_list$tandem_seats[rr]>1,localisation$res3[lang],localisation$res4[lang])),
+            collapse = "<br>"
             )
-          },
-          if (!nomultiseats) {
-            paste(
-              sprintf("%s - %s - %d %s",votes_list$CC[rro],votes_list$national.party[rro],votes_list$tandem_seats[rro],localisation$res3[lang]),
-              collapse = "<br>"
-            )
-          },
-          if (!nosingle) {
-            paste(
-              sprintf("%s - %s - %d %s",votes_list$CC[rr1],votes_list$national.party[rr1],votes_list$tandem_seats[rr1],localisation$res4[lang]),
-              collapse = "<br>" 
-            )
-          },sep = "<br>"
+          ,sep = "<br>"
         )
         
         accordion_panel(
