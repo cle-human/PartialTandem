@@ -243,10 +243,7 @@ ui <- navbarPage("",
                      plotOutput("Europlot",inline = F,width = "100%"),
                      align = "center"
                    ),
-                   uiOutput("results"),
-                   #accordion(id="results",accordion_panel("test"))
-                   #tableOutput("biproporz_partial_result")
-                   
+                   uiOutput("results"),                   
                    value = "tab1"
                  ),
                  tabPanel(
@@ -264,7 +261,6 @@ ui <- navbarPage("",
                    p(class="hangingindent","Poletti F (2023). _proporz: Proportional Apportionment_. R package version 1.2."),
                    p(class="hangingindent","R Core Team (2023). _R: A Language and Environment for Statistical Computing_. R Foundation for Statistical Computing, Vienna, Austria. https://www.R-project.org/."),
                    p(class="hangingindent","Schloerke B, Chang W, Stagg G, Aden-Buie G (2024). _shinylive: Run 'shiny' Applications in the Browser_. R package version 0.2.0, https://CRAN.R-project.org/package=shinylive."),             
-                   
                    p(class="hangingindent","Sievert C, Cheng J, Aden-Buie G (2023). _bslib: Custom  'Bootstrap' 'Sass' Themes for 'shiny' and 'rmarkdown'_. R package version 0.5.0, https://CRAN.R-project.org/package=bslib"),
                    p(class="hangingindent","Xie Y, Cheng J, Tan X (2024). _DT: A Wrapper of the JavaScript Library 'DataTables'_. R package version 0.33, https://CRAN.R-project.org/package=DT"),
                    
