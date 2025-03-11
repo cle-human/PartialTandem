@@ -1139,7 +1139,7 @@ server <- function(input, output,session=session) {
       nat_thresholds[i,3]<-ceiling(temp*0.05)
       #determine natural threshold
       country_votes<-data.frame(votes=votes_list$votes[votes_list$CC==nat_thresholds$CC[i]])
-      country_votes$seats<-proporz::proporz(country_votes$votes,national_laws_matrix$seats[i],method = "d'Hondt",0)
+      country_votes$seats<-proporz::proporz(country_votes$votes,national_laws_matrix$seats[i],method = tandem_method,0)
       country_votes<-country_votes[which(country_votes$seats>0),]
       nat_thresholds[i,4]<-min(country_votes$votes)
       
@@ -1158,10 +1158,10 @@ server <- function(input, output,session=session) {
         votes_list$European.list.coalition[i]=paste(none," - ",votes_list$national.party[i])
       }        
     }
-    #find propective coalitions
+    #find prospective coalitions
     coalitions<-unique(votes_list$European.list.coalition)
     
-    #check wether coalitions are diverse enough
+    #check whether coalitions are diverse enough
     for (i in coalitions) {
       if (max(votes_list$votes[which(votes_list$European.list.coalition==i)])>min_list_div*sum(votes_list$votes[which(votes_list$European.list.coalition==i)])) {
         votes_list$European.list.coalition[which(votes_list$European.list.coalition==i)]<-none
