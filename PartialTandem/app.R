@@ -8,7 +8,7 @@ library(proporz)
 
 #read language file
 #csv is transposed, so that the required texts can easily referenced by their id(column name) and used language(rows)
-localisation <- t(read.csv("localisation.csv", header=TRUE, sep=";"))
+localisation <- t(read.csv("localisation.csv", header=TRUE, sep=","))
 colnames(localisation)<-localisation[1,]
 localisation<-as.data.frame(localisation[-1,])
 
@@ -22,10 +22,17 @@ CC<-c("AT","BE-NED","BE-FRA","BE-DEU","BG","HR","CY","CZ","DK","EE","FI","FR","D
 #election law data (national seat distribution method, threshold, seats)
 law.matrix19<- read.csv("data/laws2019.csv", sep=";")
 law.matrix24<- read.csv("data/laws2024.csv", sep=";")
+ep22.law.matrix19<- read.csv("data/laws2019.csv", sep=";")
+ep22.law.matrix19$threshold[13]<-0.035 #Germany
+ep22.law.matrix24<- read.csv("data/laws2024.csv", sep=";")
+ep22.law.matrix24$threshold[13]<-0.035 #Germany
+ep22.law.matrix24$threshold[28]<-0.035 #Spain
 mueller.law.matrix19<- read.csv("data/muellerlaws2019.csv", sep=";")
 mueller.law.matrix24<- read.csv("data/muellerlaws2024.csv", sep=";")
 law.matrix19<-cbind(CC,law.matrix19[,-1])
 law.matrix24<-cbind(CC,law.matrix24[,-1])
+ep22.law.matrix19<-cbind(CC,ep22.law.matrix19[,-1])
+ep22.law.matrix24<-cbind(CC,ep22.law.matrix24[,-1])
 mueller.law.matrix19<-cbind(CC,mueller.law.matrix19[,-1])
 mueller.law.matrix24<-cbind(CC,mueller.law.matrix24[,-1])
 
@@ -268,6 +275,9 @@ ui <- navbarPage("",
                    p(class="hangingindent","Sievert C, Cheng J, Aden-Buie G (2023). _bslib: Custom  'Bootstrap' 'Sass' Themes for 'shiny' and 'rmarkdown'_. R package version 0.5.0, https://CRAN.R-project.org/package=bslib"),
                    p(class="hangingindent","Xie Y, Cheng J, Tan X (2024). _DT: A Wrapper of the JavaScript Library 'DataTables'_. R package version 0.33, https://CRAN.R-project.org/package=DT"),
                    
+                   h3(textOutput("translatorThankYou")),
+                   p(htmlOutput("translators")),
+                   
                    h3(textOutput("ref5")),
                    p(textOutput("ref6")),
                    a(href="https://choffmann.eu","choffmann.eu"),
@@ -414,6 +424,8 @@ server <- function(input, output,session=session) {
     #go to main page
     updateNavbarPage(session,"allsites","tab1")
   })
+  #translator names
+  output$translators<-renderUI({HTML(paste(localisation$translatorNames[3], collapse = '<br/>'))})
   
   #update of saved values
   observeEvent(input$quorum_type,{
@@ -993,7 +1005,12 @@ server <- function(input, output,session=session) {
                                         localisation$a5s2[lang])
                          choi},
                          selected = "tog")
-    
+    if (year()==2019) {
+      laws_matrix(as.data.frame(ep22.law.matrix19))
+    }
+    if (year()==2024) {
+      laws_matrix(as.data.frame(ep22.law.matrix24))
+    }
     #updateNumericInput(session,"transseats1",value = 5)
     updateNumericInput(session,"transseats2",value = 28)
     #updateCheckboxInput(session,"transoption1",value = TRUE)
@@ -1139,7 +1156,7 @@ server <- function(input, output,session=session) {
       nat_thresholds[i,3]<-ceiling(temp*0.05)
       #determine natural threshold
       country_votes<-data.frame(votes=votes_list$votes[votes_list$CC==nat_thresholds$CC[i]])
-      country_votes$seats<-proporz::proporz(country_votes$votes,national_laws_matrix$seats[i],method = tandem_method,0)
+      country_votes$seats<-proporz::proporz(country_votes$votes,national_laws_matrix$seats[i],method = "d'Hondt",0)
       country_votes<-country_votes[which(country_votes$seats>0),]
       nat_thresholds[i,4]<-min(country_votes$votes)
       
@@ -1158,10 +1175,10 @@ server <- function(input, output,session=session) {
         votes_list$European.list.coalition[i]=paste(none," - ",votes_list$national.party[i])
       }        
     }
-    #find prospective coalitions
+    #find propective coalitions
     coalitions<-unique(votes_list$European.list.coalition)
     
-    #check whether coalitions are diverse enough
+    #check wether coalitions are diverse enough
     for (i in coalitions) {
       if (max(votes_list$votes[which(votes_list$European.list.coalition==i)])>min_list_div*sum(votes_list$votes[which(votes_list$European.list.coalition==i)])) {
         votes_list$European.list.coalition[which(votes_list$European.list.coalition==i)]<-none
