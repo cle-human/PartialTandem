@@ -1317,7 +1317,7 @@ server <- function(input, output,session=session) {
         EU.votes$trans_seats<-proporz::proporz(EU.votes$votes,transseats2,tandem_method,0)
       }
       #add to votes_list as seats not tandem_seats
-      votes_list<-rbind(votes_list,data.frame(CC="EU",European.list.coalition=EU.votes$European.list.coalition,alternative="no alternative",national.party=paste0(EU.votes$European.list.coalition," ",translist),votes=EU.votes$votes,comment="",seats=EU.votes$trans_seats,EU.threshold=FALSE,Nat.threshold=FALSE,Fivepercent=FALSE,tandem_seats=0)) 
+      votes_list<-rbind(votes_list,data.frame(CC="EU",European.list.coalition=EU.votes$European.list.coalition,alternative="no alternative",national.party=paste0(EU.votes$European.list.coalition," ",translist),votes=EU.votes$votes,comment="",seats=EU.votes$trans_seats,EU.threshold=FALSE,Nat.threshold=FALSE,Fivepercent=FALSE,tandem_seats=EU.votes$trans_seats)) 
       #add to laws matrix
       national_laws_matrix<-rbind(national_laws_matrix,data.frame(CC="EU",seats=transseats2,threshold=0,method=tandem_method))
       #add to participation matrix
@@ -1325,11 +1325,14 @@ server <- function(input, output,session=session) {
     }
     
     #distribution of seats in non-tandem states
-    for (i in tandem_participation$CC[which(tandem_participation$participation=="No")]) {
+    for (i in tandem_participation$CC[1:29][which(tandem_participation$participation[1:29]=="No")]) {
       #which rows belong to the state
       rr<-which(votes_list$CC==i)#&votes_list$Nat.threshold)
-      #check whether number of seats has changed for a country
-      if (sum(votes_list$seats[rr])==national_laws_matrix$seats[which(national_laws_matrix$CC==i)]) {
+      #check whether number of seats, method or threshold has changed for a country
+      seatcheck<-(sum(votes_list$seats[rr])==national_laws_matrix$seats[which(national_laws_matrix$CC==i)])
+      methodcheck<-(national_laws_matrix$method[which(national_laws_matrix$CC==i)]==ifelse(election.year==2024,law.matrix24$method[which(national_laws_matrix$CC==i)],law.matrix19$method[which(national_laws_matrix$CC==i)]))
+      thresholdcheck<-(national_laws_matrix$threshold[which(national_laws_matrix$CC==i)]==ifelse(election.year==2024,law.matrix24$threshold[which(national_laws_matrix$CC==i)],law.matrix19$threshold[which(national_laws_matrix$CC==i)]))
+      if (seatcheck&methodcheck&thresholdcheck) {
         #copy seats from real result
         votes_list$tandem_seats[rr]<-votes_list$seats[rr]
       }else{
