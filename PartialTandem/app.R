@@ -8,7 +8,7 @@ library(proporz)
 
 #read language file
 #csv is transposed, so that the required texts can easily referenced by their id(column name) and used language(rows)
-localisation <- t(read.csv("localisation.csv", header=TRUE, sep=";"))
+localisation <- t(read.csv("localisation.csv", header=TRUE, sep=","))
 colnames(localisation)<-localisation[1,]
 localisation<-as.data.frame(localisation[-1,])
 
