@@ -327,10 +327,10 @@ server <- function(input, output,session=session) {
   title.fun<-function(x,year){
     lang<-as.numeric(input$lang)
     switch(x,
-           p = paste0(localisation$res1a[lang],year,collapse = " "),
-           f = paste0(localisation$res1b[lang],year,collapse = " "),
-           e = paste0(localisation$res1c[lang],year,collapse = " "),
-           m = paste0(localisation$res1d[lang],year,collapse = " "))
+           p = paste0(localisation$res1a[lang]," ",year),
+           f = paste0(localisation$res1b[lang]," ",year),
+           e = paste0(localisation$res1c[lang]," ",year),
+           m = paste0(localisation$res1d[lang]," ",year))
   }
   dia.title<-reactiveVal("p")
   
@@ -1176,10 +1176,29 @@ server <- function(input, output,session=session) {
         votes_list$European.list.coalition[i]=paste(none," - ",votes_list$national.party[i])
       }        
     }
-    #find propective coalitions
+    #find prospective coalitions
     coalitions<-unique(votes_list$European.list.coalition)
     
-    #check wether coalitions are diverse enough
+    #check whether coalitions are diverse enough - weighted option by votes with little effect
+    # votes_list$votes_weighted<-votes_list$votes
+    # for (i in CC) {
+    #   votes_list$votes_weighted[which(votes_list$CC==i)]<-votes_list$votes_weighted[which(votes_list$CC==i)]*((sum(votes_list$votes)/sum(national_laws_matrix$seats))/(sum(votes_list$votes[which(votes_list$CC==i)])/national_laws_matrix$seats[which(national_laws_matrix$CC==i)]))
+    # }
+    # 
+    # for (i in coalitions) {
+    #   if (max(votes_list$votes_weighted[which(votes_list$European.list.coalition==i)])>min_list_div*sum(votes_list$votes_weighted[which(votes_list$European.list.coalition==i)])) {
+    #     votes_list$European.list.coalition[which(votes_list$European.list.coalition==i)]<-none
+    #   }
+    # }
+    # votes_list<-votes_list[,-ncol(votes_list)]
+    # 
+    # for (i in 1:nrow(votes_list)) {
+    #   if (votes_list$European.list.coalition[i]==none) {
+    #     votes_list$European.list.coalition[i]=paste(none," - ",votes_list$national.party[i])
+    #   }        
+    # } 
+    
+    #check whether coalitions are diverse enough
     for (i in coalitions) {
       if (max(votes_list$votes[which(votes_list$European.list.coalition==i)])>min_list_div*sum(votes_list$votes[which(votes_list$European.list.coalition==i)])) {
         votes_list$European.list.coalition[which(votes_list$European.list.coalition==i)]<-none
@@ -1188,8 +1207,9 @@ server <- function(input, output,session=session) {
     for (i in 1:nrow(votes_list)) {
       if (votes_list$European.list.coalition[i]==none) {
         votes_list$European.list.coalition[i]=paste(none," - ",votes_list$national.party[i])
-      }        
-    }    
+      }
+    }
+    
     #find true coalitions
     coalitions<-unique(votes_list$European.list.coalition)    
     
